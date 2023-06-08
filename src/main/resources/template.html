@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+</head>
+<body>
+<table id="table">
+    <tr>
+        <th>Image</th>
+        <th>prompt</th>
+        <th>negative</th>
+        <th>steps</th>
+        <th>sampler</th>
+        <th>CFG scale</th>
+        <th>size</th>
+        <th>model</th>
+        <th>seed</th>
+    </tr>
+</table>
+</body>
+<script>
+    let items = [];
+    let table = document.getElementById("table");
+    
+    let expanded = false;
+    
+    
+    function fillHeader() {
+        let row = document.createElement("tr");
+        let th = document.createElement("th");
+        th.innerHTML = "Image";
+        row.appendChild(th);
+        let th2 = document.createElement("th");
+        th2.innerHTML = "prompt";
+        row.appendChild(th2);
+        let th3 = document.createElement("th");
+        th3.innerHTML = "negative";
+        row.appendChild(th3);
+        let th4 = document.createElement("th");
+        th4.innerHTML = "steps";
+        row.appendChild(th4);
+        let th5 = document.createElement("th");
+        th5.innerHTML = "sampler";
+        row.appendChild(th5);
+        let th6 = document.createElement("th");
+        th6.innerHTML = "CFG scale";
+        row.appendChild(th6);
+        let th7 = document.createElement("th");
+        th7.innerHTML = "size";
+        row.appendChild(th7);
+        let th8 = document.createElement("th");
+        th8.innerHTML = "model";
+        row.appendChild(th8);
+        let th9 = document.createElement("th");
+        th9.innerHTML = "seed";
+        row.appendChild(th9);
+        table.appendChild(row);
+    }
+    
+    let currentPage = 1;
+    let currentItem = 0;
+    let itemsOnPage = 10;
+    
+    function initItem() {
+        for (const child of table.children) {
+            child.style.outline = "thin solid black";
+        }
+        let currentRow = document.getElementById('item_' + currentItem);
+        if (!currentRow) {
+            currentItem = (currentPage - 1) * itemsOnPage;
+            window.scrollBy({ top: -1000, behavior: 'smooth'});
+        }
+        currentRow = document.getElementById('item_' + currentItem);
+        currentRow.style.outline = "5px solid red";
+        if (expanded) {
+            expandItem();
+        }
+    }
+    function fillTable(selectedItem) {
+        table.innerHTML = '';
+        fillHeader();
+        let start = (currentPage - 1) * itemsOnPage;
+        if (start < 0) {
+            start = 0;
+            currentPage = 1;
+        }
+        let end = start + itemsOnPage;
+        if (end > items.length) {
+            end = items.length;
+            currentPage--;
+        }
+        for (let i = start; i < end; i++) {
+            let row = document.createElement("tr");
+            row.onclick = function () {
+                currentItem = i;
+                initItem();
+                expandItem();
+            };
+            row.id = 'item_' + i;
+            let item = items[i];
+            let img = document.createElement("img");
+            img.style.maxWidth = "100px";
+            img.src = item.path;
+            let td = document.createElement("td");
+            td.appendChild(img);
+            row.appendChild(td);
+            let td2 = document.createElement("td");
+            td2.innerHTML = item.prompt;
+            row.appendChild(td2);
+            let td3 = document.createElement("td");
+            td3.innerHTML = item.negative;
+            row.appendChild(td3);
+            let td4 = document.createElement("td");
+            td4.innerHTML = item.steps;
+            row.appendChild(td4);
+            let td5 = document.createElement("td");
+            td5.innerHTML = item.sampler;
+            row.appendChild(td5);
+            let td6 = document.createElement("td");
+            td6.innerHTML = item.scale;
+            row.appendChild(td6);
+            let td7 = document.createElement("td");
+            td7.innerHTML = item.size;
+            row.appendChild(td7);
+            let td8 = document.createElement("td");
+            td8.innerHTML = item.model;
+            row.appendChild(td8);
+            let td9 = document.createElement("td");
+            td9.innerHTML = item.seed;
+            row.appendChild(td9);
+            row.style.outline = "thin solid black";
+            row.onmouseover = function () {
+                if (row.style.outline !== "red solid 5px") {
+                    row.style.outline = "5px solid blue"; 
+                }
+            };
+            row.onmouseleave = function () {
+                if (row.style.outline !== "red solid 5px") {
+                    row.style.outline = "thin solid black";
+                }
+            };
+            table.appendChild(row);
+        }
+        if (selectedItem) {
+            currentItem = selectedItem;
+        } else {
+            currentItem = start;
+            window.scrollBy({ top: -1000, behavior: 'smooth'});
+        }
+        expanded = false;
+        initItem();
+    }
+
+
+    function expandItem() {
+        if (expanded) {
+            expanded = false;
+            fillTable(currentItem);
+        } else {
+            expanded = true;
+            let currentRow = document.getElementById('item_' + currentItem);
+            let item = items[currentItem];
+            let td = document.createElement("td");
+            td.colSpan = 8;
+            let img = document.createElement("img");
+            img.style.maxWidth = "100%";
+            img.src = item.path;
+            td.appendChild(img);
+            currentRow.innerHTML = '';
+            currentRow.appendChild(td);
+            let infoTd = document.createElement("td");
+            infoTd.innerHTML = item.prompt + '<br>' + item.negative + '<br>' + item.steps + '<br>' + item.sampler + '<br>' + item.scale + '<br>' + item.size + '<br>' + item.model + '<br>' + item.seed;
+            currentRow.appendChild(infoTd);
+            currentRow.onclick = function () {
+                initItem();
+            };
+            img.focus();
+            img.scrollIntoView();
+        }
+    }
+    
+    fillTable();
+
+    document.onkeydown = checkKey;
+    function checkKey(e) {
+
+        e = e || window.event;
+
+        if (e.keyCode == '87' || e.keyCode == '38') {
+            e.preventDefault();
+            currentItem--;
+            window.scrollBy({ top: -30, behavior: 'smooth'});
+            initItem();
+        } else if (e.keyCode == '83' || e.keyCode == '40') {
+            e.preventDefault();
+            window.scrollBy({ top: 30, behavior: 'smooth'});
+            currentItem++;
+            initItem();
+        } else if (e.keyCode == '65' || e.keyCode == '37') {
+            currentPage--;
+            fillTable();
+        } else if (e.keyCode == '68' || e.keyCode == '39') {
+            currentPage++;
+            fillTable();
+        } else if (e.keyCode == '32') {
+            e.preventDefault();
+            expandItem();
+        }
+
+    }
+
+</script>
+</html>
