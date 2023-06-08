@@ -151,23 +151,12 @@ public class ImageManager {
 
     public void start() {
         switch (mode) {
-            case COPY:
-                deduplicateCopy();
-                break;
-            case ROLLBACK:
-                rollback();
-                break;
-            case INFO:
-                printInfo();
-                break;
-            case REMOVE:
-                deduplicateRemove();
-                break;
-            case REPORT:
-                generateHtmlReport();
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown mode: " + mode);
+            case COPY -> deduplicateCopy();
+            case ROLLBACK -> rollback();
+            case INFO -> printInfo();
+            case REMOVE -> deduplicateRemove();
+            case REPORT -> generateHtmlReport();
+            default -> throw new IllegalArgumentException("Unknown mode: " + mode);
         }
     }
 }
